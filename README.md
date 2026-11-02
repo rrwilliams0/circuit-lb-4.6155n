@@ -1,0 +1,78 @@
+# Li's function needs (4.6155 - eps) n gates: the proof, the code and the certificates
+
+This repository accompanies the appendix "The computer-assisted cutwidth bound" of the paper *Explicit functions requiring
+circuits larger than 4.6n*. It contains
+
+* `proof.md` — the complete proof that the cubic cutwidth constant is at most M_tree <= 0.2765836097, so that every
+  fan-in-two circuit computing Li's function on n inputs has more than (1 + 1/M_tree - eps) n >= (4.6155 - eps) n gates;
+* `PROOFS.md` — an index from each step of the paper's appendix to the section of `proof.md` that proves it, and from each
+  finite claim checked by computer to the script and data that check it;
+* the scripts and data of every computer check, and `run_checks.py`, which runs them all in about ten minutes;
+* `regen.py` and `REGENERATE.md`, which regenerate the two large certificates (47 GB of records, not stored here).
+
+## What is proved by hand and what by computer
+
+Every statement in `proof.md` is proved there by hand, except finite claims about explicit numbers, which are marked
+`FC-...` and are checked by the programs in this repository: interval branch-and-bound certificates whose records store dual
+multipliers (weak duality bounds each box; the bound is re-checked in outward-rounded arithmetic, no LP solver is trusted),
+exact rational computations, and interval enclosures of constants. The three large certificates are Theorem R1 (169,002
+boxes, stored in full), the kill inequality on the thin set N (2.29 million records) and positive semidefiniteness on N
+(1.5 million records). The records of the last two are not stored (47 GB); 50-record samples of each are, and `REGENERATE.md`
+explains how to produce them again (about 690 CPU-hours) and check them in full (about 130 CPU-hours).
+
+## Running the checks
+
+Python 3 with numpy, scipy and mpmath (tested with Python 3.12, numpy 1.26, scipy 1.13, mpmath 1.3). From the repository
+folder, with a work folder outside it:
+
+```
+python -B run_checks.py ../work
+```
+
+It runs the steps below one after another, single-threaded, compares every output with the value stated in `proof.md`,
+keeps every output in `../work/out/`, and ends with `CHECKS PASSED: True`. Two steps are skipped unless the regenerated
+records are in place.
+
+| step | what it checks | proof.md |
+|---|---|---|
+| mtree_upper, mtree_enclosure | the enclosure of M_tree (FC-MT), two independent codes | 4.3 |
+| constant_exact, constant_digits | 2 kappa_E > M_up and 1 + 1/M_up >= 4.6155432392, in exact arithmetic (FC-KAPPA) | 10.3 |
+| R1_loc4d | the local lemma at the tree (FC-LOC4D) | 6.3 |
+| R1_cover, R1_replay_50 | Theorem R1: the 74,096 records tile the root set; 50 of them re-derived (FC-R1) | 6.4 |
+| N_single_edge, N_window | the single-edge ceilings and the window of the thin set N (FC-R7) | 7.2 |
+| N_d3 | Lemma D3 on the 123 generators (FC-D3) | 7.3 |
+| N_klo, N_consts, N_box | the constants of N (FC-THIN) | 7.4 |
+| N_marginal_window | the marginals of N lie in the window (FC-WIN) | 7.4 |
+| N_cross_entries | every cross entry is at least 0.82 on N (FC-PI; 21.9 million boxes) | 7.4 |
+| N_profile_maxima | the profile maxima (FC-SEP) | 8.4 |
+| K_loc2k_replay, K_loc2kc_cells | Lemmas LOC2-K and LOC2-K(c) (FC-LOC2K, FC-LOC2KC) | 8.8 |
+| K_emin_2cells | two cells of the Emin table re-derived (FC-EMIN) | 8.9 |
+| K_emin_extended | the extended Emin certificate for cell (12, 6), side hi, on which 180 G* records rest (FC-EMIN) | 8.10 |
+| K_Q_replay_50, K_Gstar_replay_50 | 50 records of each kill-inequality certificate re-derived (FC-Q, FC-GSTAR) | 8.10 |
+| K_fbar | the bound on f (FC-FBAR) | 9.3 |
+| PSD_CLR_exact | the exact composition ratio (C-LR) = 0.984377... (FC-CLR) | 9.6 |
+| PSD_root_domain, PSD_engine_point, PSD_engine_e2e | the 640 roots cover the domain; the engine's upper forms dominate their definitions | 9.5, 9.7 |
+| PSD_cover_5roots, PSD_replay_50 | the exact cover of five roots and 50 records of the PSD certificate re-derived (FC-LR) | 9.7 |
+| K_Gstar_cover_all, PSD_cover_all | the exact covers of the two large certificates (need the full records) | 8.10, 9.7 |
+
+Two rules for anyone replaying the large certificates: never set the environment variable `BK23_NODUBCACHE` for the
+640-root replay (the records were made without it), and replay the Q and G* records with the verifier in `kill/src` and
+`gstar/src` (it enforces the range-inheritance rule that the records assume).
+
+## Layout
+
+```
+proof.md, PROOFS.md, README.md, REGENERATE.md, run_checks.py, regen.py
+mtree/      the enclosure of M_tree: upper/ (hloc.py) and enclosure/ (bk8_core.py)
+constant/   the exact arithmetic of the constant
+r1/         Theorem R1: trees/ (the branch-and-bound trees) and records/ (the 74,096 records, their cover and replay)
+thin/       the thin set N: r7/, d3/, consts/, pi/, sep/
+loc2k/      Lemma LOC2-K (and the marginal window check)
+loc2kc/     Lemma LOC2-K(c) and its cells; check/ re-certifies the cells and the 11 slivers between them
+kill/       the kill inequality: the Emin table producer, the domain-Q search, the verifier (src/), the Emin cells (emin/)
+gstar/      the G* certificate: the search (src/bk19_grun.py), the cover (src/bk19_gcover.py), the Emin tables (emin/), job lists (run/)
+psd/        positive semidefiniteness: the search (bk23_orun.py), the cover and replay, exact/ (the composition check), engine_check/
+samples/    50-record samples of the Q, G* and PSD certificates and two Emin cells
+```
+
+Every search writes into its own folder, so regeneration must run on a copy of the repository (see `REGENERATE.md`).

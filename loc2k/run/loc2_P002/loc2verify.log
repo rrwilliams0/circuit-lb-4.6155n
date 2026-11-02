@@ -1,0 +1,4 @@
+origin True 0.7939827593282484 0.1511580320222572 0.07347424267813352
+replayed 5306 boxes, failures 0 min {'psi': 1.0523803985868417e-09, 'single': -0.0001488439813986133}
+psi volume + origin box == K volume: True
+single volume == domain volume: True
