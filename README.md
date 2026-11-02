@@ -1,7 +1,7 @@
 # Li's function needs (4.6155 - eps) n gates: the proof, the code and the certificates
 
 This repository accompanies the appendix "The computer-assisted cutwidth bound" of the paper *Explicit functions requiring
-circuits larger than 4.6n*. It contains
+circuits larger than 4.6n* (McGuire, Schlesinger, Williams). It contains
 
 * `proof.md` — the complete proof that the cubic cutwidth constant is at most M_tree <= 0.2765836097, so that every
   fan-in-two circuit computing Li's function on n inputs has more than (1 + 1/M_tree - eps) n >= (4.6155 - eps) n gates;
