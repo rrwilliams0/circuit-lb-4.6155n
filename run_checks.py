@@ -108,8 +108,8 @@ STEPS = [
      has('pq <= [2.1798183856797051745081469318'), 'pq <='),
     # the kill inequality
     ('K_loc2k_replay', [PY, '-B', P('loc2k', 'src', 'bk16_loc2verify.py'), P('loc2k', 'run', 'loc2_P002', 'loc2K_boxes.jsonl')],
-     W, {}, has('replayed 5306 boxes, failures 0', 'psi volume + origin box == K volume: True',
-               'single volume == domain volume: True'), 'replayed'),
+     W, {}, has('origin True', 'replayed 5306 boxes, failures 0', 'psi volume + origin box == K volume: True',
+               'single volume == domain volume: True', 'psi tiling valid: True', 'single tiling valid: True'), 'replayed'),
     ('K_loc2kc_cells', [PY, '-B', P('loc2kc', 'check', 'oloc2c.py'), P('loc2kc', 'run', 'loc2c'), '50'], W, {},
      lambda t: '(2) tiling: cells with a problem 0' in t and t.count(': OK') == 11 and
                all(l.endswith(': OK') for l in t.splitlines() if l.startswith('(3) gap after cell')), '(2) tiling'),
